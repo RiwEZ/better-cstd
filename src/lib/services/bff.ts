@@ -45,7 +45,7 @@ export async function reservationInfo(token: string, uuid: string, date: dayjs.D
 export async function tableTennisReservationInfo(token: string) {
 	const now = dayjs();
 	const result = await Promise.all(
-		Array.from({ length: 5 }).map(async (_, i) => {
+		Array.from({ length: 3 }).map(async (_, i) => {
 			const date = now.add(i, 'd');
 			const info = await reservationInfo(token, BENCHAKITI_TABLE_TENNIS_UUID, date);
 			return { scheduleReserve: i > 1, info, date: date.format('YYYY-MM-DD') };
