@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { reservationList, reservationSlot } from './cstd';
+import { BENCHAKITI_TABLE_TENNIS_UUID } from '$env/static/private';
 
 export async function reservationInfo(token: string, uuid: string, date: dayjs.Dayjs) {
 	const tables = await reservationList(token, uuid);
@@ -15,14 +16,11 @@ export async function reservationInfo(token: string, uuid: string, date: dayjs.D
 			}
 
 			return slots.data.map((slot) => {
-				if (!slot.IS_FULL) {
-					return {
-						start: slot.START_TIME,
-						end: slot.END_TIME,
-						available: new Set<string>([slot.ID])
-					};
-				}
-				return { start: slot.START_TIME, end: slot.END_TIME, available: new Set<string>() };
+				return {
+					start: slot.START_TIME,
+					end: slot.END_TIME,
+					available: new Set<string>(slot.IS_FULL ? [] : [slot.ID])
+				};
 			});
 		})
 	);
@@ -44,14 +42,16 @@ export async function reservationInfo(token: string, uuid: string, date: dayjs.D
 	return result;
 }
 
-export async function tableTennis3DaysReservationInfo(token: string) {
+export async function tableTennisReservationInfo(token: string) {
 	const now = dayjs();
 	const result = await Promise.all(
-		Array.from({ length: 3 }).map((_, i) => {
-			return reservationInfo(token, 'dea4697e-8e96-4fe2-b37a-93b763f85a8d', now.add(i, 'd'));
+		Array.from({ length: 5 }).map(async (_, i) => {
+			const date = now.add(i, 'd');
+			const info = await reservationInfo(token, BENCHAKITI_TABLE_TENNIS_UUID, date);
+			return { scheduleReserve: i > 1, info, date: date.format('YYYY-MM-DD') };
 		})
 	);
 	return result;
 }
 
-export type TableTenni3DaysReservationInfos = ReturnType<typeof tableTennis3DaysReservationInfo>;
+export type TableTennisReservationInfo = ReturnType<typeof tableTennisReservationInfo>;

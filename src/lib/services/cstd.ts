@@ -9,13 +9,13 @@ const reservationSlotSchema = z.array(
 		START_TIME: z.string().time(),
 		END_TIME: z.string().time(),
 		IS_FULL: z.boolean(),
-		REMAINING: z.number()
 	})
 );
 
 export async function reservationSlot(token: string, uuid: string, date: dayjs.Dayjs) {
 	const url = new URL(`/reservation/api/reservation/item/${uuid}/slot`, CSTD_BASE_URL);
 	url.searchParams.set('BOOKING_DATE', date.format('YYYY-MM-DD'));
+	url.searchParams.set('IS_GUEST', 'true');
 	const resp = await fetch(url, {
 		headers: {
 			Authorization: `Bearer ${token}`
@@ -40,16 +40,15 @@ export async function reservationList(token: string, uuid: string) {
 	const url = new URL(`/reservation/api/reservation/item/${uuid}/active`, CSTD_BASE_URL);
 
 	const result = await getCache(key, async () => {
-		const result = await fetch(url, {
+		const resp = await fetch(url, {
 			headers: {
 				Authorization: `Bearer ${token}`
 			}
 		});
 
-		const body = await result.json();
+		const body = await resp.json();
 		return body;
 	});
-
 
 	return reservationListSchema.safeParse(result);
 }
@@ -69,7 +68,7 @@ const registerGuestSchema = z.object({
 
 export async function registerGuest(cid: string) {
 	const url = new URL(`/card-service/api/card/register/validate`, CSTD_BASE_URL);
-	const result = await fetch(url, {
+	const resp = await fetch(url, {
 		method: 'POST',
 		body: JSON.stringify({
 			CID: cid,
@@ -80,6 +79,31 @@ export async function registerGuest(cid: string) {
 		}
 	});
 
-	const body = await result.json();
+	const body = await resp.json();
 	return registerGuestSchema.safeParse(body);
+}
+
+export async function reserve(
+	token: string,
+	body: { bookingDate: dayjs.Dayjs; slotId: string; bookerId: string }
+) {
+	const url = new URL(`/reservation/api/reservation/booking`, CSTD_BASE_URL);
+	url.searchParams.set('IS_GUEST', 'true');
+
+	const requestBody = {
+		BOOKING_DATE: body.bookingDate.format('YYYY-MM-DD'),
+		SLOT_ID: body.slotId,
+		BOOKER_ID: body.bookerId
+	};
+
+	const resp = await fetch(url, {
+		method: 'POST',
+		body: JSON.stringify(requestBody),
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`
+		}
+	});
+
+	return resp;
 }
