@@ -79,7 +79,11 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 		return new Response();
 	}
 
-	const scheduledTime = dayjs(bookingDate).subtract(1, 'd').hour(6).minute(0).tz('Asia/Bangkok');
+	const scheduledTime = dayjs(bookingDate)
+		.tz('Asia/Bangkok', true)
+		.subtract(1, 'd')
+		.hour(6)
+		.minute(0);
 
 	scheduleJob(bookingDate, scheduledTime, async () => {
 		for (let i = 0; i < 3; i += 1) {
