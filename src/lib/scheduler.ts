@@ -25,6 +25,7 @@ export function scheduleJob(name: string, time: dayjs.Dayjs, fn: () => Promise<v
 	const uuid = crypto.randomUUID();
 
 	const timeout = setTimeout(async () => {
+		console.log('schedule' + dayjs().tz().format('YYYY-MM-DDTHH:mm:ssZ[Z]'));
 		try {
 			await fn();
 		} finally {

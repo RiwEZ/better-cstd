@@ -85,7 +85,9 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 		.hour(6)
 		.minute(0);
 
-	scheduleJob(bookingDate, scheduledTime, async () => {
+	// TODO: improve logging solution, current deployment on cloudflare, we can't fucking see the log
+	// on cloudflare pages, maybe use some self-hosted logstash in the future
+	const job = async () => {
 		for (let i = 0; i < 3; i += 1) {
 			try {
 				const response = await reserve(authResult.data.token, {
@@ -96,13 +98,23 @@ export const POST: RequestHandler = async ({ cookies, request }) => {
 
 				if (response.status === 200) {
 					break;
+				} else {
+					const body = await response.json();
+					console.error('[scheduleJob.reserve]', body);
 				}
 			} catch {
 				console.error('[scheduleJob.reserve] has failed');
 				await new Promise((resolve) => setTimeout(resolve, 10000));
 			}
 		}
-	});
+	};
+
+	scheduleJob(bookingDate, scheduledTime, job);
+	// HACK: just do the job every 30 mins til 8 am lol
+	scheduleJob(bookingDate, scheduledTime.add(30, 'm'), job);
+	scheduleJob(bookingDate, scheduledTime.add(60, 'm'), job);
+	scheduleJob(bookingDate, scheduledTime.add(90, 'm'), job);
+	scheduleJob(bookingDate, scheduledTime.add(120, 'm'), job);
 
 	return new Response();
 };

@@ -1,6 +1,11 @@
 import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import timezone from 'dayjs/plugin/timezone';
 import { reservationList, reservationSlot } from './cstd';
 import { BENCHAKITI_TABLE_TENNIS_UUID } from '$env/static/private';
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 export async function reservationInfo(token: string, uuid: string, date: dayjs.Dayjs) {
 	const tables = await reservationList(token, uuid);
@@ -43,7 +48,7 @@ export async function reservationInfo(token: string, uuid: string, date: dayjs.D
 }
 
 export async function tableTennisReservationInfo(token: string) {
-	const now = dayjs();
+	const now = dayjs().tz('Asia/Bangkok');
 	const result = await Promise.all(
 		Array.from({ length: 3 }).map(async (_, i) => {
 			const date = now.add(i, 'd');

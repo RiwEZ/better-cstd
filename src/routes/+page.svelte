@@ -27,7 +27,8 @@
 		});
 
 		if (resp.status === 200) {
-			alert('Reserved!!!');
+			const message = scheduleReserve ? 'Scheduler Reserved!!!' : 'Reserved!!!';
+			alert(message);
 		} else {
 			alert("Can't reserve this slot, something wrong");
 		}
