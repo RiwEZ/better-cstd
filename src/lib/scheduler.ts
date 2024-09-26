@@ -1,8 +1,9 @@
+import { CronJob } from 'cron';
 import dayjs from 'dayjs';
 
 interface ScheduledJob {
 	name: string;
-	timeout: NodeJS.Timeout;
+	job: CronJob;
 }
 
 const scheduledJobs: Map<string, ScheduledJob> = new Map();
@@ -10,32 +11,29 @@ const scheduledJobs: Map<string, ScheduledJob> = new Map();
 function removeJob(uuid: string) {
 	const data = scheduledJobs.get(uuid);
 	if (data) {
-		clearTimeout(data.timeout);
 		scheduledJobs.delete(uuid);
 	}
 }
 
-export function scheduleJob(name: string, time: dayjs.Dayjs, fn: () => Promise<void>) {
-	const now = dayjs();
-	if (time.valueOf() < now.valueOf()) {
-		throw new Error('Scheduled time must be in the future');
-	}
-	const delay = time.valueOf() - now.valueOf();
-
+export function scheduleJob(time: dayjs.Dayjs, fn: () => Promise<void>) {
 	const uuid = crypto.randomUUID();
 
-	const timeout = setTimeout(async () => {
-		console.log('schedule' + dayjs().tz().format('YYYY-MM-DDTHH:mm:ssZ[Z]'));
-		try {
-			await fn();
-		} finally {
-			removeJob(uuid);
-		}
-	}, delay);
+	const job = CronJob.from({
+		cronTime: time.toDate(),
+		onTick: async function () {
+			try {
+				await fn();
+			} finally {
+				removeJob(uuid);
+			}
+		},
+		start: true,
+		timeZone: 'UTC+7'
+	});
 
 	scheduledJobs.set(uuid, {
-		name: name + ` will run at ${time.format('YYYY-MM-DDTHH:mm:ssZ[Z]')}`,
-		timeout
+		name: uuid + `will run at ${time.format('YYYY-MM-DDTHH:mm:ssZ[Z]')}`,
+		job
 	});
 }
 
@@ -46,3 +44,5 @@ export function listJobs() {
 		})
 	);
 }
+
+export type JobList = ReturnType<typeof listJobs>

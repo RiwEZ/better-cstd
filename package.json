@@ -40,6 +40,7 @@
   "dependencies": {
     "bits-ui": "^0.21.15",
     "clsx": "^2.1.1",
+    "cron": "^3.1.7",
     "dayjs": "^1.11.13",
     "node-cron": "^3.0.3",
     "tailwind-merge": "^2.5.2",

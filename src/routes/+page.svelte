@@ -2,17 +2,18 @@
 	import type { PageData } from './$types';
 	import { Button } from '$lib/components/ui/button';
 	import { Separator } from '$lib/components/ui/separator';
+	import dayjs from 'dayjs';
 
 	export let data: PageData;
 
-	const handleReserve = async (
-		available: string[],
-		bookingDate: string,
-		scheduleReserve: boolean
-	) => {
+	const handleReserve = async (available: string[], bookingDate: string) => {
 		if (available.length === 0) {
 			return;
 		}
+
+		// This should run on the browser, so it should default to local time
+		const availableTime = dayjs(bookingDate).hour(6);
+		const scheduled = dayjs().diff(availableTime) < 0;
 
 		const resp = await fetch('/bff/table-tennis', {
 			method: 'POST',
@@ -22,12 +23,12 @@
 			body: JSON.stringify({
 				slotId: available.pop(),
 				bookingDate,
-				scheduleReserve
+				scheduled
 			})
 		});
 
 		if (resp.status === 200) {
-			const message = scheduleReserve ? 'Scheduler Reserved!!!' : 'Reserved!!!';
+			const message = scheduled ? 'Scheduled Reserve!!!' : 'Reserved!!!';
 			alert(message);
 		} else {
 			alert("Can't reserve this slot, something wrong");
@@ -37,11 +38,6 @@
 </script>
 
 <h1 class="text-center text-xl font-bold mt-2">Benchakiti Park, Table Tennis</h1>
-<div class="flex justify-center">
-	{#each data.jobs as job}
-		{job.name}
-	{/each}
-</div>
 <div class="flex flex-row space-x-4 justify-center mt-2">
 	{#each data.tableTennis as day}
 		<div>
@@ -53,8 +49,7 @@
 					<Button
 						size="sm"
 						disabled={info.available.length === 0}
-						on:click={() => handleReserve(info.available, day.date, day.scheduleReserve)}
-						>Reserve</Button
+						on:click={() => handleReserve(info.available, day.date)}>Reserve</Button
 					>
 				</div>
 				<Separator class="mt-2" />
