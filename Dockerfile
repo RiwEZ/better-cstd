@@ -16,4 +16,4 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-l
 ENV PORT=8888
 EXPOSE 8888
 
-CMD [ "node", "index.js" ]
+CMD [ "ORIGIN=http://main.tanatriw.com", "node", "index.js" ]
