@@ -14,6 +14,7 @@ COPY --from=build /app/build /app/
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
 
 ENV PORT=8888
+ENV ORIGIN=http://main.tanatriw.com
 EXPOSE 8888
 
-CMD [ "ORIGIN=http://main.tanatriw.com", "node", "index.js" ]
+CMD [ "node", "index.js" ]
