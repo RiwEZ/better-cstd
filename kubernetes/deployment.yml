@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: better-cstd-web
+  labels:
+    app: better-cstd-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: better-cstd-web
+  template:
+    metadata:
+      labels:
+        app: better-cstd-web
+    spec:
+      containers:
+        - name: better-cstd-web
+          image: ghcr.io/riwez/better-cstd:latest
+          ports:
+            - containerPort: 8888
+          resources:
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+          env:
+            - name: NODE_ENV
+              value: "production"
