@@ -2,7 +2,7 @@ name: push-image
 
 on:
   push:
-    branchs: 
+    branchs:
       - main
   workflow_dispatch:
 
@@ -17,6 +17,10 @@ jobs:
       contents: read
     steps:
       - uses: actions/checkout@v4
+      - name: Create .env file
+        run: |
+          echo = "CSTD_BASE_URL=${{ secrets.CSTD_BASE_URL }}" >> .env
+          echo = "BENCHAKITI_TABLE_TENNIS_UUID=${{ secrets.BENCHAKITI_TABLE_TENNIS_UUID }}" >> .env
       - name: Build image
         run: docker build . --file Dockerfile --tag $IMAGE_NAME --label "runnumber=${GITHUB_RUN_ID}"
       - name: Log in to registry
