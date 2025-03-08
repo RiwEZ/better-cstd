@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: better-cstd-web
-          image: ghcr.io/riwez/better-cstd
+          image: ghcr.io/riwez/better-cstd:latest
           ports:
             - containerPort: 8888
           resources:

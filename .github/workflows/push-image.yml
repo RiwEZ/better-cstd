@@ -54,6 +54,6 @@ jobs:
           chmod 600 $HOME/.kube/config
       - name: Update kube deployment
         run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/service.yaml
+          kubectl apply -f kubernetes/deployment.yml
+          kubectl apply -f kubernetes/service.yml
           kubectl rollout status deployment/better-cstd-web
